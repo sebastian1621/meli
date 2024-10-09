@@ -1,63 +1,51 @@
 # MELI Test Challenge
 # Introduction
 
-This is a Code Challenge where you can parse a sentence with the following rules:
-
-* Each word will be replaced with the following: first letter, number of distinct characters between first and
-  last character, and last letter.
-* Words are separated by spaces or non-alphabetic characters and these separators should be
-  maintained in their original form and location in the answer.
-
+This is a code challenge for MercadoLibre. It contains an API where you can get data from a given IP and also you can get stats of the API Usage
 # Features
 
 - SpringBoot usage
 - Clean Architecture implementation
-- Dependency Injection for the service usage
+- Dependency Injection
 - SOLID principles and best practices
-- Design patterns
+- Design patterns like Singleton and Provider
+- Basic cache implementation with concurrency
 - Unit Tests
 
-## Examples
+# Decitions Made 
+ - I decided to choose a Clean Architecture implementation taking into account that we can change the API providers or in the future we can need a database with a Clean Architecture we can easily change our provders and keep all the logic into the core project
+ - I decided to use an In Memory cache using Singleton pattern to hold the logs with a concurrent implementation of a List (CopyOnWriteArrayList). With that, we can follow the requirement of multiple requests at the same time (Between 1 to 1 million of requests per second). With that implemntation we take an snapshot of the list when the information is given and the object is available to receive new records. I though about use the database for those logs but taking into account the amount of requests it will affect the performance, mantainability and availability of the database. For that reason, the best approach is the cache
+ - I decided to use SpringBoot to make all the beans and project management easier
+ - I did not include the currency data requirement because the endpoint that provides countries data did not retrieve currency information.
+ - I decided to use adapter pattern to adapt the API Response to the domain entity and make it usable to follow all the clean architecture principles
 
-* Input 1: It was many and many a year ago <br> 
-Output 1: I0t w1s m2y a1d m2y a y2r a1o
-* Input 2: Copyright,Microsoft:Corporation <br>
-Output 2: C7t,M6t:C6n
+# How To Use?
 
-## How To Use?
-
-You have two ways to use the program:
-
-1. You can pass your sentence as the first argument to the program, and it will parse that word.
-2. You can omit the arguments, and the program will display a UI in the console where you can enter your input.
-
-## Improvement Opportunities
-
-- Different implementations for the countDistinctCharacters method
-
-
-### Image creation
-Docker build /t ipinfo .
+## Image creation
+```Docker build /t ipinfo .```
 
 ## Run image
-Docker run -p 8080:8080 ipinfo
+```Docker run -p 8080:8080 ipinfo```
 
-
+# Endpoints
 ## General IP information
 This endpoint shows general IP information according to the country it belongs to.
-curl --location 'http://localhost:8080/v1.0/ipInfo/83.44.196.93'
+```curl --location 'http://localhost:8080/v1.0/ipInfo/83.44.196.93'```
 
 ## Furthest distance
 This endpoint shows the furthest distance to Buenos Aires of the queries made according to the information stored in the cache.
-curl --location 'http://localhost:8080/v1.0/ipInfo/stats/maxDistance
+```curl --location 'http://localhost:8080/v1.0/ipInfo/stats/maxDistance```
 
 ## Closest distance
 This endpoint shows the closest distance to Buenos Aires of the queries made according to the information stored in the cache.
-curl --location 'http://localhost:8080/v1.0/ipInfo/stats/minDistance
+```curl --location 'http://localhost:8080/v1.0/ipInfo/stats/minDistance```
 
 ## Average distance
 This endpoint shows the average distance of all executions of the service.
-curl --location 'http://localhost:8080/v1.0/ipInfo/stats/average'
+```curl --location 'http://localhost:8080/v1.0/ipInfo/stats/average'```
 
-
-
+# Improvement Opportunities
+- Increase the unit testing code coverage of the application
+- Find a way to get the currencies maybe using another API
+- Improve the way to store the access token. We can think on use a vault or a cloud key storage like SSM
+- If the program will be used for a lot of users we can think on migrate the Cache like Redis
